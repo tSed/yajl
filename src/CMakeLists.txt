@@ -35,11 +35,21 @@ SET (shareDir ${CMAKE_CURRENT_BINARY_DIR}/../${YAJL_DIST_NAME}/share/pkgconfig)
 # set the output path for libraries
 SET(LIBRARY_OUTPUT_PATH ${libDir})
 
+SET(yajl_lib_link)
+INCLUDE(CheckLibraryExists)
+CHECK_LIBRARY_EXISTS(c isnan "" HAVE_LIBC_ISNAN)
+
+IF(NOT HAVE_LIBC_ISNAN)
+  LIST(APPEND yajl_lib_link "-lm")
+ENDIF(NOT HAVE_LIBC_ISNAN)
+
 ADD_LIBRARY(yajl_s STATIC ${SRCS} ${HDRS} ${PUB_HDRS})
 SET_TARGET_PROPERTIES(yajl_s PROPERTIES OUTPUT_NAME yajl)
+TARGET_LINK_LIBRARIES(yajl_s PUBLIC ${yajl_lib_link})
 
 IF(BUILD_SHARED_LIBS)
 ADD_LIBRARY(yajl SHARED ${SRCS} ${HDRS} ${PUB_HDRS})
+TARGET_LINK_LIBRARIES(yajl PUBLIC ${yajl_lib_link})
 
 #### setup shared library version number
 SET_TARGET_PROPERTIES(yajl PROPERTIES
